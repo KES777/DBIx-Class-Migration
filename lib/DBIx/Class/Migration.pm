@@ -71,7 +71,13 @@ has schema => (is=>'lazy', predicate=>'has_schema');
 
   sub _build_schema {
     my ($self) = @_;
-    $self->schema_class->connect(@{$self->schema_args});
+    my $schema  = $self->schema_class->connect(@{$self->schema_args});
+    my $storage = $schema->storage;
+    if( !$storage->sql_maker->quote_char ) {
+      $storage->sql_maker->quote_char( $storage->sql_quote_char );
+    }
+
+    return $schema;
   }
 
 has target_dir_builder_class => (
